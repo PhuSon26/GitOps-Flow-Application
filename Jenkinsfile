@@ -52,7 +52,7 @@ pipeline {
                         git add base/backend-deployment.yaml base/frontend-deployment.yaml
 
                         git commit -m "deploy: update XeHay images to ${IMAGE_TAG}"
-                        git push origin main
+                        git push origin HEAD:main
                     '''
                 }
             }
