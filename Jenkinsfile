@@ -65,7 +65,7 @@ pipeline {
             steps {
                 withCredentials([
                     gitUsernamePassword(
-                        credentialsId: 'Github-tokens',
+                        credentialsId: 'gitops-tokens',
                         gitToolName: 'Default'
                     )
                 ]) {
