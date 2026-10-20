@@ -94,15 +94,84 @@ pipeline {
 
     post {
         success {
-            echo 'CD completed: GitOps manifests updated. Argo CD will synchronize the changes.'
+            script {
+                def message = """
+    :rocket: *XeHay CD SUCCESS*
+    *Job:* ${env.JOB_NAME}
+    *Build:* #${env.BUILD_NUMBER}
+    *Status:* GitOps manifests updated successfully
+    *Build URL:* ${env.BUILD_URL}
+    """.stripIndent().trim()
+    
+                try {
+                    withCredentials([
+                        string(
+                            credentialsId: 'slack-webhook',
+                            variable: 'SLACK_WEBHOOK_URL'
+                        )
+                    ]) {
+                        writeFile(
+                            file: 'slack-payload.json',
+                            text: groovy.json.JsonOutput.toJson([text: message])
+                        )
+    
+                        sh '''
+                            set +x
+                            curl --fail --silent --show-error \
+                              --connect-timeout 10 \
+                              --max-time 20 \
+                              -X POST \
+                              -H 'Content-Type: application/json' \
+                              --data-binary @slack-payload.json \
+                              "$SLACK_WEBHOOK_URL"
+                        '''
+                    }
+                } catch (err) {
+                    echo "Slack notification failed: ${err.getMessage()}"
+                }
+            }
         }
-
+    
         failure {
-            echo 'CD failed. Check Console Output for details.'
+            script {
+                def message = """
+    :rotating_light: *XeHay CD FAILED*
+    *Job:* ${env.JOB_NAME}
+    *Build:* #${env.BUILD_NUMBER}
+    *Build URL:* ${env.BUILD_URL}
+    """.stripIndent().trim()
+    
+                try {
+                    withCredentials([
+                        string(
+                            credentialsId: 'slack-webhook',
+                            variable: 'SLACK_WEBHOOK_URL'
+                        )
+                    ]) {
+                        writeFile(
+                            file: 'slack-payload.json',
+                            text: groovy.json.JsonOutput.toJson([text: message])
+                        )
+    
+                        sh '''
+                            set +x
+                            curl --fail --silent --show-error \
+                              --connect-timeout 10 \
+                              --max-time 20 \
+                              -X POST \
+                              -H 'Content-Type: application/json' \
+                              --data-binary @slack-payload.json \
+                              "$SLACK_WEBHOOK_URL"
+                        '''
+                    }
+                } catch (err) {
+                    echo "Slack notification failed: ${err.getMessage()}"
+                }
+            }
         }
-
+    
         always {
-            echo 'GitOps CD pipeline finished.'
+            echo "CD pipeline finished."
         }
     }
 }
