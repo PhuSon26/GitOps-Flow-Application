@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: xehay
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/PhuSon26/GitOps-Flow-Application.git
+    targetRevision: HEAD
+    path: base
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: xehay
+
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      prune: false
+      selfHeal: true
