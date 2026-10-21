@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: car-marketplace-frontend
-          image: phuson0206/car-marketplace-frontend:1.0.0-39
+          image: phuson0206/car-marketplace-frontend:1.0.0-40
           ports:
             - name: http
               containerPort: 80
